@@ -92,6 +92,11 @@ public struct Vector2 : Codable, DynamicNodeDecoding {
         self.y = .init(y)
     }
     
+    public init(_ point: CGPoint) {
+        self.x = .init(point.x)
+        self.y = .init(point.y)
+    }
+    
     public init(_ glVec: GLKVector2) {
         self.x = .init(glVec.x)
         self.y = .init(glVec.y)

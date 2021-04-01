@@ -139,6 +139,7 @@ public class BaseParticleEmitter : Codable, DynamicNodeEncoding, DynamicNodeDeco
     var particles = Array<Particle>()         /// Array of particles that hold the particle emitters particle details
     
     public var sourcePosition : Vector2 = .zero
+    var initialSourcePostion : Vector2 = .zero
     var particleCount : Int = 0
     var duration : PEFloat = .zero
     var spriteKitBlendMode : SKBlendMode = .add
@@ -313,8 +314,12 @@ public class BaseParticleEmitter : Codable, DynamicNodeEncoding, DynamicNodeDeco
         active = true
         elapsedTime.float = 0.0
         
+        sourcePosition = self.initialSourcePostion
+
         for i in 0 ..< particleCount {
             particles[i].timeToLive.float = 0.0
+            
+            self.removeParticle(atIndex: i)
         }
         
         emitCounter.float = 0.0
@@ -545,6 +550,8 @@ public class BaseParticleEmitter : Codable, DynamicNodeEncoding, DynamicNodeDeco
         } else {
             spriteKitBlendMode = .add
         }
+        
+        self.initialSourcePostion = self.sourcePosition
                 
         self.setupArrays()
         self.reset()

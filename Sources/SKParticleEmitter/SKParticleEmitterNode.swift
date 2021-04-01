@@ -17,6 +17,8 @@ open class SKParticleEmitterNode : SKNode, BaseParticleEmitterDelegate {
     /// The actual emitter engine.
     public var emitter : BaseParticleEmitter?
     
+    public var targetNode : SKNode?
+    
     /// The texture to use for this emitter.
     var texture : SKTexture?
 
@@ -29,10 +31,13 @@ open class SKParticleEmitterNode : SKNode, BaseParticleEmitterDelegate {
     
     /// Initialises the emitter (an SKNode) using the configuration specified file.
     /// - Parameter fileName: the configuration file to use; it's assumed that the extension is ".pex".
+    /// - Parameter targetNode: an optional target node that renders the emitter’s particles.
     /// - Throws: If something prevents the shader configuration being loaded.
-    public init(withConfigFile fileName: String) throws {
+    public init(withConfigFile fileName: String, andTargetNode targetNode : SKNode? = nil) throws {
         super.init()
 
+        self.targetNode = targetNode
+        
         // load the emitter engine.
         emitter = try BaseParticleEmitter.load(withFile: fileName, delegate: self)!
         
@@ -47,7 +52,6 @@ open class SKParticleEmitterNode : SKNode, BaseParticleEmitterDelegate {
             self.particleNodes.append(particleNode)
             particleNode.isHidden = true
             particleNode.color = .init(red: 1.0, green: 0.3, blue: 0.5, alpha: 0.5)
-            self.addChild(particleNode)
         }
     }
     
@@ -81,6 +85,14 @@ open class SKParticleEmitterNode : SKNode, BaseParticleEmitterDelegate {
         }
     }
     
+    public override func removeFromParent() {
+        super.removeFromParent()
+
+        self.emitter?.reset()
+        self.emitter?.active = false
+        
+    }
+    
     // MARK: - BaseParticleEmitterDelegate
     
     /// Adds a single particle node to the node tree.  This is called by the emitter engine.
@@ -88,6 +100,13 @@ open class SKParticleEmitterNode : SKNode, BaseParticleEmitterDelegate {
     func addParticle() {
         let particleNode = self.particleNodes[self.particleNodeIndex]
         particleNode.isHidden = false
+        
+        
+        if let tn = self.targetNode {
+            tn.addChild(particleNode)
+        } else {
+            self.addChild(particleNode)
+        }
         
         particleNodeIndex += 1
         assert(particleNodeIndex <= emitter!.maxParticles.int)
@@ -100,6 +119,7 @@ open class SKParticleEmitterNode : SKNode, BaseParticleEmitterDelegate {
 
         let particleNode = self.particleNodes[self.particleNodeIndex]
         particleNode.isHidden = true
+        particleNode.removeFromParent()
     }
 
 }
