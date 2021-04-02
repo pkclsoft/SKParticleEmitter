@@ -535,7 +535,7 @@ public class BaseParticleEmitter : Codable, DynamicNodeEncoding, DynamicNodeDeco
         } else if blendFuncSource.int == GL_SRC_ALPHA && blendFuncDestination.int == GL_ONE {
             spriteKitBlendMode = .add
         } else if blendFuncSource.int == GL_DST_COLOR && blendFuncDestination.int == GL_ONE_MINUS_SRC_ALPHA {
-            spriteKitBlendMode = .multiply
+            spriteKitBlendMode = .multiplyAlpha
 // I've no idea how to mapp these two.
 //        } else if blendFuncSource.int == GL_ONE &&  blendFuncDestination.int == GL_ONE {
 //            blendFunc = .multiplyAlpha
