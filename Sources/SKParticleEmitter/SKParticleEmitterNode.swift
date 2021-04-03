@@ -103,8 +103,10 @@ open class SKParticleEmitterNode : SKNode, BaseParticleEmitterDelegate {
         
         
         if let tn = self.targetNode {
+            particleNode.zPosition = tn.zPosition + CGFloat(particleNodeIndex)
             tn.addChild(particleNode)
         } else {
+            particleNode.zPosition = self.zPosition + CGFloat(particleNodeIndex)
             self.addChild(particleNode)
         }
         
