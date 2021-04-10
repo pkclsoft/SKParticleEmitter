@@ -62,7 +62,7 @@ open class SKParticleEmitterNode : SKNode, BaseParticleEmitterDelegate {
     
     /// Update the emitter (typically, once a frame).  Call this from the scene or view update() method.
     /// - Parameter aDelta: the amount of time to give to the particles.
-    public func update(withDelta aDelta: TimeInterval) {
+    public func update(withDelta aDelta: TimeInterval, providingAlpha: CGFloat) {
         self.emitter?.update(withDelta: PEFloat(aDelta))
         
         var particleNode : SKSpriteNode
@@ -78,6 +78,7 @@ open class SKParticleEmitterNode : SKNode, BaseParticleEmitterDelegate {
             particleNode.color = p.color.asUIColor()
             particleNode.zRotation = CGFloat(GLKMathDegreesToRadians(p.rotation.float))
             particleNode.colorBlendFactor = 1.0
+            particleNode.alpha = providingAlpha
             
             // this is what 71Squared had.  I think with time, we can improve on this to map the GL blend modes to
             // SpriteKit blend modes.
