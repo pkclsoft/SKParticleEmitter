@@ -84,7 +84,11 @@ public class BaseParticleEmitter : Codable, DynamicNodeEncoding, DynamicNodeDeco
     /// Particle vars
     var textureDetails : PETexture?
     var tiffData : Data?
+    #if os(macOS)
+    var image : NSImage?
+    #else
     var image : UIImage?
+    #endif
     var cgImage : CGImage?
     var emitterType : ParticleTypes = .particleTypeGravity
     var sourcePositionVariance : Vector2 = .zero
@@ -499,6 +503,21 @@ public class BaseParticleEmitter : Codable, DynamicNodeEncoding, DynamicNodeDeco
         // Create a UIImage from the tiff data to extract colorspace and alpha info
         if let image = self.textureDetails?.image() {
             
+            #if os(macOS)
+            if let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: .none) {
+                let info = cgImage.alphaInfo
+                let space = cgImage.colorSpace
+                
+                // Detect if the image contains alpha data
+                self.hasAlpha = info == .premultipliedLast ||
+                    info == .premultipliedFirst ||
+                    info == .last ||
+                    info == .first
+                
+                // Detect if alpha data is premultiplied
+                self.premultiplied = space != .none && self.hasAlpha
+            }
+            #else
             if let cgImage = image.cgImage {
                 let info = cgImage.alphaInfo
                 let space = cgImage.colorSpace
@@ -512,6 +531,7 @@ public class BaseParticleEmitter : Codable, DynamicNodeEncoding, DynamicNodeDeco
                 // Detect if alpha data is premultiplied
                 self.premultiplied = space != .none && self.hasAlpha
             }
+            #endif
         }
         
         // Is opacity modification required

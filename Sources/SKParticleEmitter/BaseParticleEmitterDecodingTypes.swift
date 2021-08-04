@@ -144,9 +144,15 @@ struct PEColor : Codable, DynamicNodeDecoding {
         }
     }
     
+    #if os(macOS)
+    func asUIColor() -> NSColor {
+        return NSColor(red: CGFloat(r), green: CGFloat(g), blue: CGFloat(b), alpha: CGFloat(a))
+    }
+    #else
     func asUIColor() -> UIColor {
         return UIColor(red: CGFloat(r), green: CGFloat(g), blue: CGFloat(b), alpha: CGFloat(a))
     }
+    #endif
     
     // MARK :- Mathematical operators.
     
@@ -394,6 +400,19 @@ struct PETexture : Codable, DynamicNodeDecoding {
     /// Attempts to locate a named image asset if a name is provided by the emitter configuration file, and no compressed image data is present,
     /// or returns an image formed from the decompressed image data.
     /// - Returns: A UIImage object representing the texture to use for the emitter.
+    #if os(macOS)
+    func image() -> NSImage? {
+        if name.count > 0 && data.count == 0 {
+            return NSImage(named: name)
+        } else if data.count > 0 {
+            if let tiffData = self.inflated(data: Data(base64Encoded: data)!) {
+                return NSImage(data: tiffData)
+            }
+        }
+        
+        return nil
+    }
+    #else
     func image() -> UIImage? {
         if name.count > 0 && data.count == 0 {
             return UIImage(named: name)
@@ -405,6 +424,7 @@ struct PETexture : Codable, DynamicNodeDecoding {
         
         return nil
     }
+    #endif
     
     /// Returns a SKTexture object containing the texture specified by the emitter configuration.
     /// - Returns: A SKTexture object, or nil if no image could be determined.
