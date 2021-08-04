@@ -6,14 +6,14 @@ import PackageDescription
 let package = Package(
     name: "SKParticleEmitter",
     platforms: [
-        .iOS(.v14),
-        .macOS(.v11),
+        .iOS(.v12),
+        .macOS(.v11)
     ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "SKParticleEmitter",
-            targets: ["SKParticleEmitter"]),
+            targets: ["SKParticleEmitter"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
