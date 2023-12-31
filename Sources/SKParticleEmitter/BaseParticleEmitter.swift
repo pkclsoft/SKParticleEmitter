@@ -154,22 +154,46 @@ public class BaseParticleEmitter : Codable, DynamicNodeEncoding, DynamicNodeDeco
         self.particles.removeAll()
     }
     
+    /// Loads an emitter from the named PEX file within the main bundle.
+    /// - Parameters:
+    ///   - withFile: the name of the PEX file describing the emitter.
+    ///   - delegate: the delegate for the loaded emitter.
+    /// - Returns: A loaded and configured emitter or nil if it can't be loaded..
     static func load(withFile: String, delegate: BaseParticleEmitterDelegate) throws -> BaseParticleEmitter? {
-        if let fileURL = Bundle.main.url(forResource: withFile, withExtension: "pex") {
-            let data = try Data(contentsOf: fileURL)
-
-            let decoder = XMLDecoder()
-            
-            let result = try decoder.decode(BaseParticleEmitter.self,from: data)
-
-            result.delegate = delegate
-            
-            result.postParseInit()
-            
-            return result
+        return try load(withFile: withFile, fromBundle: Bundle.main, delegate: delegate)
+    }
+    
+    /// Loads an emitter from the named PEX file within the specified bundle.
+    /// - Parameters:
+    ///   - withFile: the name of the PEX file describing the emitter.
+    ///   - fromBundle: the bundle from which to load the file.
+    ///   - delegate: the delegate for the loaded emitter.
+    /// - Returns: A loaded and configured emitter or nil if it can't be loaded..
+    static func load(withFile: String, fromBundle: Bundle, delegate: BaseParticleEmitterDelegate) throws -> BaseParticleEmitter? {
+        if let fileURL = fromBundle.url(forResource: withFile, withExtension: "pex") {
+            return try load(fromURL: fileURL, delegate: delegate)
         }
         
         return nil
+    }
+    
+    /// Loads an emitter from the PEX file at the specified URL.
+    /// - Parameters:
+    ///   - fileURL: the URL of the emitter description file.
+    ///   - delegate: the delegate for the loaded emitter.
+    /// - Returns: A loaded and configured emitter .
+    static func load(fromURL fileURL: URL, delegate: BaseParticleEmitterDelegate) throws -> BaseParticleEmitter {
+        let data = try Data(contentsOf: fileURL)
+        
+        let decoder = XMLDecoder()
+        
+        let result = try decoder.decode(BaseParticleEmitter.self,from: data)
+        
+        result.delegate = delegate
+        
+        result.postParseInit()
+        
+        return result
     }
     
     func update(withDelta aDelta: PEFloat) {

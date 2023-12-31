@@ -31,19 +31,42 @@ open class SKParticleEmitterNode : SKNode, BaseParticleEmitterDelegate {
     
     /// Initialises the emitter (an SKNode) using the configuration specified file.
     /// - Parameter fileName: the configuration file to use; it's assumed that the extension is ".pex".
+    /// - Parameter bundle: the bundle from which to load the configuration file; defaults to `Bundle.main`.
     /// - Parameter targetNode: an optional target node that renders the emitter’s particles.
     /// - Throws: If something prevents the shader configuration being loaded.
-    public init(withConfigFile fileName: String, andTargetNode targetNode : SKNode? = nil) throws {
+    public init(withConfigFile fileName: String, fromBundle bundle: Bundle = Bundle.main, andTargetNode targetNode : SKNode? = nil) throws {
         super.init()
 
         self.targetNode = targetNode
         
         // load the emitter engine.
-        emitter = try BaseParticleEmitter.load(withFile: fileName, delegate: self)!
+        self.emitter = try BaseParticleEmitter.load(withFile: fileName, fromBundle: bundle, delegate: self)!
         
         // get the texture from the emitter.
         self.texture = emitter?.textureDetails!.texture()!
         
+        self.configure()
+    }
+    
+    /// Initialises the emitter (an SKNode) using the configuration specified file.
+    /// - Parameter fileURL: the URL of the PEX file containing the configuration file.
+    /// - Parameter targetNode: an optional target node that renders the emitter’s particles.
+    /// - Throws: If something prevents the shader configuration being loaded.
+    public init(withConfigURL fileURL: URL, andTargetNode targetNode : SKNode? = nil) throws {
+        super.init()
+
+        self.targetNode = targetNode
+        
+        // load the emitter engine.
+        self.emitter = try BaseParticleEmitter.load(fromURL: fileURL, delegate: self)
+        
+        // get the texture from the emitter.
+        self.texture = emitter?.textureDetails!.texture()!
+        
+        self.configure()
+    }
+    
+    private func configure() {
         // create all of the particle SKSpriteNodes, all using the same texture.
         for _ in 0 ..< emitter!.maxParticles.int {
             let particleNode = SKSpriteNode(texture: self.texture)
@@ -54,7 +77,7 @@ open class SKParticleEmitterNode : SKNode, BaseParticleEmitterDelegate {
             particleNode.color = .init(red: 1.0, green: 0.3, blue: 0.5, alpha: 0.5)
         }
     }
-    
+
     /// Not used by this class, but required by Swift.
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
